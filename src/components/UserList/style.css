@@ -1,0 +1,16 @@
+.action-btn-container{
+    display: flex;
+    gap: 10px;
+}
+
+.btn{
+    cursor: pointer;
+}
+.loader-container{
+display: flex;
+justify-content: center;
+margin-top: 50px;
+/* height: 500px; */
+size: 50;
+color: #0000ff;
+}
