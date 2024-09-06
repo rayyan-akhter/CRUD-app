@@ -13,9 +13,7 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+ 
 
   // Fetch users from the API and save them in local storage if not already present
   const fetchUsers = async () => {
@@ -41,6 +39,9 @@ const UserList = () => {
     }
   };
 
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
   // Delete a user from both state and local storage
   const deleteUser = (id) => {
     // Filter out the deleted user
