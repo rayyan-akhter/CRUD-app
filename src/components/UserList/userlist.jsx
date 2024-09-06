@@ -2,8 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserForm from '../UserForm/UserForm';
-import "./style.css";
-import { LuClipboardEdit } from 'react-icons/lu';
+import './style.css';
 import { FiEdit } from 'react-icons/fi';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { ClipLoader } from 'react-spinners';
@@ -11,57 +10,51 @@ import { ClipLoader } from 'react-spinners';
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Fetch users from the API and save them in local storage
+  // Fetch users from the API and save them in local storage if not already present
   const fetchUsers = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
-      const apiResponse = await axios.get('https://jsonplaceholder.typicode.com/users');
-      const apiUsers = apiResponse.data;
+      // Fetch users from local storage
+      const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+      if (storedUsers.length > 0) {
+        setUsers(storedUsers);
+      } else {
+        // Fetch users from the API
+        const apiResponse = await axios.get('https://jsonplaceholder.typicode.com/users');
+        const apiUsers = apiResponse.data;
 
-      // Save users fetched from the API into local storage
-      const existingLocalUsers = JSON.parse(localStorage.getItem('users')) || [];
-      const allUsers = [...apiUsers, ...existingLocalUsers];
-
-      // Merge and filter out duplicates by ID
-      const uniqueUsers = allUsers.reduce((acc, current) => {
-        if (!acc.find((user) => user.id === current.id)) {
-          acc.push(current);
-        }
-        return acc;
-      }, []);
-
-      // Save the unique users to local storage
-      localStorage.setItem('users', JSON.stringify(uniqueUsers));
-      setUsers(uniqueUsers);
+        // Save users fetched from the API into local storage
+        localStorage.setItem('users', JSON.stringify(apiUsers));
+        setUsers(apiUsers);
+      }
     } catch (err) {
       setError('Failed to fetch users');
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   // Delete a user from both state and local storage
   const deleteUser = (id) => {
+    // Filter out the deleted user
     const updatedUsers = users.filter((user) => user.id !== id);
     setUsers(updatedUsers);
 
-    const localStorageUsers = JSON.parse(localStorage.getItem('users')) || [];
-    const filteredLocalUsers = localStorageUsers.filter((user) => user.id !== id);
-    localStorage.setItem('users', JSON.stringify(filteredLocalUsers));
+    // Update local storage with the filtered list
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
   };
 
-  // Navigate to edit page when edit button is clicked
+  // Navigate to the edit page when the edit button is clicked
   const handleEditClick = (id) => {
     navigate(`/user/${id}`);
   };
-
 
   return (
     <div>
@@ -70,7 +63,7 @@ const UserList = () => {
       <UserForm onUserAdd={fetchUsers} />
       {loading ? (
         <div className="loader-container">
-          <ClipLoader size={90} color="#0000ff" /> 
+          <ClipLoader size={90} color="#0000ff" />
         </div>
       ) : (
         <table>
@@ -89,9 +82,16 @@ const UserList = () => {
                 <td>{user.email}</td>
                 <td>{user.phone}</td>
                 <td className="action-btn-container">
-                  
-<FiEdit className='edit btn' size={25} onClick={() => handleEditClick(user.id)} />
-<AiOutlineDelete className='delete btn' size={25}  onClick={() => deleteUser(user.id)} /> 
+                  <FiEdit
+                    className="edit btn"
+                    size={25}
+                    onClick={() => handleEditClick(user.id)}
+                  />
+                  <AiOutlineDelete
+                    className="delete btn"
+                    size={25}
+                    onClick={() => deleteUser(user.id)}
+                  />
                 </td>
               </tr>
             ))}
