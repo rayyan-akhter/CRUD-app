@@ -1,11 +1,11 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AiOutlineDelete } from 'react-icons/ai';
+import { FiEdit } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
 import UserForm from '../UserForm/UserForm';
 import './style.css';
-import { FiEdit } from 'react-icons/fi';
-import { AiOutlineDelete } from 'react-icons/ai';
-import { ClipLoader } from 'react-spinners';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -16,7 +16,7 @@ const UserList = () => {
  
 
   // Fetch users from the API and save them in local storage if not already present
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       // Fetch users from local storage
@@ -37,7 +37,7 @@ const UserList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUsers();
